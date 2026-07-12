@@ -126,6 +126,14 @@ const allowedOrigins = [
 ];
 
 const uniqueAllowedOrigins = [...new Set(allowedOrigins)];
+console.log("========== CORS DEBUG ==========");
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+console.log("WEBSITE_URL:", process.env.WEBSITE_URL);
+console.log("ADMIN_URL:", process.env.ADMIN_URL);
+console.log("EXTRA_ALLOWED_ORIGINS:", process.env.EXTRA_ALLOWED_ORIGINS);
+console.log("Allowed Origins:", uniqueAllowedOrigins);
+console.log("===============================");
 logger.info('Server starting', {
   environment: process.env.NODE_ENV || 'development',
   port: process.env.PORT || 4000,

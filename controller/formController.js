@@ -16,7 +16,14 @@ export const submitForm = async (req, res) => {
 
     res.json({ message: 'Form submitted successfully' });
   } catch (error) {
-    console.error('Error saving form data:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
+  console.error("========== FORM ERROR ==========");
+  console.error(error);
+  console.error(error.message);
+  console.error(error.stack);
+
+  res.status(500).json({
+    success: false,
+    message: error.message,
+  });
+}
 };
