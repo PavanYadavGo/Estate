@@ -21,6 +21,7 @@ import {
   getUserReactivatedTemplate
 } from '../email.js';
 
+
 class EmailService {
   constructor() {
     this.fromAddress = process.env.EMAIL_USER || 'noreply@buildestate.com';
