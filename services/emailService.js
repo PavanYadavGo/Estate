@@ -225,6 +225,94 @@ class EmailService {
   }
 
   /**
+ * Send contact enquiry to the owner/admin
+ */
+async sendContactNotificationToOwner(contact) {
+  const subject = `🏡 New Contact Enquiry from ${contact.name}`;
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;padding:20px;">
+      <h2 style="color:#D4755B;">New Contact Enquiry</h2>
+
+      <table cellpadding="8" cellspacing="0">
+        <tr>
+          <td><strong>Name</strong></td>
+          <td>${contact.name}</td>
+        </tr>
+
+        <tr>
+          <td><strong>Email</strong></td>
+          <td>${contact.email}</td>
+        </tr>
+
+        <tr>
+          <td><strong>Phone</strong></td>
+          <td>${contact.phone || "Not provided"}</td>
+        </tr>
+      </table>
+
+      <h3>Message</h3>
+
+      <div style="
+        background:#f5f5f5;
+        padding:15px;
+        border-radius:8px;
+        white-space:pre-line;
+      ">
+        ${contact.message}
+      </div>
+    </div>
+  `;
+
+  return this.sendEmail(
+    process.env.ADMIN_EMAIL,
+    subject,
+    html
+  );
+}
+
+/**
+ * Send confirmation email to customer
+ */
+async sendContactConfirmation(email, name) {
+
+  const subject = "We've received your enquiry - BuildEstate";
+
+  const html = `
+  <div style="font-family:Arial,sans-serif;padding:30px;line-height:1.7">
+
+    <h2 style="color:#D4755B">
+      Thank you for contacting BuildEstate
+    </h2>
+
+    <p>Hi <strong>${name}</strong>,</p>
+
+    <p>
+      We have successfully received your enquiry.
+    </p>
+
+    <p>
+      One of our property experts will contact you shortly.
+    </p>
+
+    <p>
+      Thank you for choosing BuildEstate.
+    </p>
+
+    <br>
+
+    <strong>
+      BuildEstate Team
+    </strong>
+
+  </div>
+  `;
+
+  return this.sendEmail(email, subject, html);
+
+}
+
+  /**
    * Get email service health status
    */
   async getHealthStatus() {
@@ -269,5 +357,7 @@ export const {
   sendEmailSafely,
   sendUserSuspended,
   sendUserBanned,
-  sendUserReactivated
+  sendUserReactivated,
+  sendContactNotificationToOwner,
+  sendContactConfirmation
 } = emailService;
