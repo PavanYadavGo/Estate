@@ -10,6 +10,13 @@ const FALLBACK_MODEL = "gpt-4.1-nano";
 // Request timeout for GitHub Models calls (30 seconds)
 const AI_TIMEOUT_MS = 30_000;
 
+console.log(
+  "GitHub Models Key:",
+  process.env.GITHUB_MODELS_API_KEY
+    ? "Loaded ✅"
+    : "Missing ❌"
+);
+
 const SYSTEM_PROMPT = `You are a concise Indian real estate expert assistant.
 Rules:
 - Always respond with valid JSON matching the requested schema.
