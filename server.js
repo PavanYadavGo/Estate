@@ -26,6 +26,20 @@ if (process.env.NODE_ENV !== 'production') {
 }
 dotenv.config(); // .env fallback / Render uses process-level env vars
 
+console.log(
+  "GitHub Models Key:",
+  process.env.GITHUB_MODELS_API_KEY
+    ? "Loaded ✅"
+    : "Missing ❌"
+);
+
+console.log(
+  "Firecrawl Key:",
+  process.env.FIRECRAWL_API_KEY
+    ? "Loaded ✅"
+    : "Missing ❌"
+);
+
 const app = express();
 
 // Configure trust proxy for different environments
