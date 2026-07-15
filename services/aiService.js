@@ -241,11 +241,6 @@ rankProperties(properties, filters) {
   // ── Analysis Methods ──────────────────────────────────────────
 
   async analyzeProperties(properties, { city, locality, bhk, minPrice, maxPrice, propertyType, propertyCategory }) {
-    const rankedProperties =
-    this.rankProperties(properties, {
-        bhk,
-        maxPrice
-    });
 
 const rankedProperties = rankProperties(properties, {
     city,
@@ -257,8 +252,7 @@ const rankedProperties = rankProperties(properties, {
 
 const preparedProperties =
     this._preparePropertyData(
-        rankedProperties,
-        8
+        rankedProperties.slice(0, 8)
     );
 
     const minNum   = parseFloat(minPrice) || 0;
