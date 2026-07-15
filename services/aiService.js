@@ -3,6 +3,7 @@ import ModelClient, { isUnexpected } from "@azure-rest/ai-inference";
 import { AzureKeyCredential } from "@azure/core-auth";
 import { registry } from "../utils/circuitBreaker.js";
 import logger from "../utils/logger.js";
+import { rankProperties } from "../utils/propertyScoring.js";
 
 const PRIMARY_MODEL = "gpt-4.1-mini";
 const FALLBACK_MODEL = "gpt-4.1-nano";
@@ -155,6 +156,58 @@ class AIService {
   }
 
 
+  scoreProperty(property, filters) {
+
+    let score = 0;
+
+    // Budget
+    const price = parseFloat(property.price || property.total_price || 0);
+
+    if (price && price <= filters.maxPrice)
+        score += 40;
+
+    // Exact BHK
+    if (
+        filters.bhk &&
+        property.bhk_config?.toLowerCase().includes(filters.bhk.toLowerCase())
+    )
+        score += 25;
+
+    // Ready possession
+    if (
+        property.possession_status?.toLowerCase().includes("ready")
+    )
+        score += 15;
+
+    // RERA
+    if (property.rera_number)
+        score += 10;
+
+    // Parking
+    if (property.parking)
+        score += 5;
+
+    // Amenities
+    if (Array.isArray(property.amenities))
+        score += Math.min(property.amenities.length, 5);
+
+    return score;
+
+}
+
+
+rankProperties(properties, filters) {
+
+    return properties
+        .map(property => ({
+            property,
+            score: this.scoreProperty(property, filters)
+        }))
+        .sort((a, b) => b.score - a.score)
+        .map(item => item.property);
+
+}
+
   // ── Data Preparation ──────────────────────────────────────────
 
   _preparePropertyData(properties, maxProperties = 20) {
@@ -188,7 +241,25 @@ class AIService {
   // ── Analysis Methods ──────────────────────────────────────────
 
   async analyzeProperties(properties, { city, locality, bhk, minPrice, maxPrice, propertyType, propertyCategory }) {
-    const preparedProperties = this._preparePropertyData(properties);
+    const rankedProperties =
+    this.rankProperties(properties, {
+        bhk,
+        maxPrice
+    });
+
+const rankedProperties = rankProperties(properties, {
+    city,
+    locality,
+    bhk,
+    maxPrice,
+    propertyType
+});
+
+const preparedProperties =
+    this._preparePropertyData(
+        rankedProperties,
+        8
+    );
 
     const minNum   = parseFloat(minPrice) || 0;
     const maxNum   = parseFloat(maxPrice);
