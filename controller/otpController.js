@@ -4,10 +4,7 @@ import sendOTP from "../services/fast2smsService.js";
 import userModel from "../models/userModel.js";
 import crypto from "crypto";
 import emailService from "../services/emailService.js";
-import bcrypt from "bcryptjs";
-import generateOTP from "../utils/generateOTP.js";
-
-const otp = generateOTP();
+import bcrypt from "bcryptjs";  
 
 export const sendSignupOTP = async (req, res) => {
   try {
