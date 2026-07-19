@@ -1,6 +1,6 @@
 import OTP from "../models/otpModel.js";
 import generateOTP from "../utils/generateOTP.js";
-import sendOTP from "../services/fast2smsService.js";
+import sendOTP from "../services/otpService.js";
 import userModel from "../models/userModel.js";
 import crypto from "crypto";
 import emailService from "../services/emailService.js";
