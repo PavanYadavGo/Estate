@@ -24,7 +24,7 @@ router.get("/test", async (req, res) => {
   }
 });
 
-router.post("/send", sendOTPController);
-router.post("/verify", verifyOTPController);
+router.post("/signup/send", sendSignupOTP);
+router.post("/signup/verify", verifySignupOTP);
 
 export default router;

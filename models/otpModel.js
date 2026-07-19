@@ -19,6 +19,10 @@ const OTPSchema = new mongoose.Schema(
       required: true,
     },
 
+        userData: {
+      type: Object,
+    },
+
     expiresAt: {
       type: Date,
       required: true,

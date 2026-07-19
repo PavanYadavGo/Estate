@@ -1,5 +1,3 @@
-console.log("✅ userController.js loaded");
-
 import express from "express";
 import { Router } from "express";
 import bcrypt from "bcryptjs";
@@ -97,7 +95,7 @@ const login = async (req, res) => {
 
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, phone, password } = req.body;
 
     // Validate email format
     if (!validator.isEmail(email)) {
@@ -116,6 +114,15 @@ const register = async (req, res) => {
       return res.json({ message: "An account with this email already exists.", success: false });
     }
 
+    const existingPhone = await userModel.findOne({ phone });
+
+if (existingPhone) {
+  return res.json({
+    success: false,
+    message: "Phone number already registered."
+  });
+}
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -127,6 +134,7 @@ const register = async (req, res) => {
     const newUser = new userModel({
       name,
       email,
+      phone,
       password: hashedPassword,
       isEmailVerified: false,
       emailVerificationToken: hashedVerificationToken,

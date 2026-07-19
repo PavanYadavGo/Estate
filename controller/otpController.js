@@ -1,94 +1,128 @@
 import OTP from "../models/otpModel.js";
 import generateOTP from "../utils/generateOTP.js";
-import { sendOTP } from "../services/otpService.js";
+import sendOTP from "../services/fast2smsService.js";
+import userModel from "../models/userModel.js";
+import crypto from "crypto";
+import emailService from "../services/emailService.js";
+import bcrypt from "bcryptjs";
 
-export const sendOTPController = async (req, res) => {
+export const sendSignupOTP = async (req, res) => {
   try {
-    const { phone, purpose } = req.body;
-    
-    if (!/^[6-9]\d{9}$/.test(phone)) {
-  return res.status(400).json({
-    success: false,
-    message: "Invalid phone number",
-  });
-}
+    const { name, email, phone, password } = req.body;
 
-    if (!phone) {
-      return res.status(400).json({
+    // Check existing email
+    if (await userModel.findOne({ email })) {
+      return res.json({
         success: false,
-        message: "Phone number is required",
+        message: "Email already exists."
+      });
+    }
+
+    // Check existing phone
+    if (await userModel.findOne({ phone })) {
+      return res.json({
+        success: false,
+        message: "Phone number already registered."
       });
     }
 
     const otp = generateOTP();
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Remove old OTPs for this phone + purpose
-    await OTP.deleteMany({ phone, purpose });
+    // Remove old signup OTP if present
+    await OTP.deleteMany({
+      phone,
+      purpose: "signup"
+    });
 
-    // Save new OTP (5 min expiry)
     await OTP.create({
       phone,
       otp,
-      purpose,
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+      purpose: "signup",
+      userData: {
+        name,
+        email,
+        phone,
+        password: hashedPassword
+      },
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000)
     });
 
     await sendOTP(phone, otp);
 
     return res.json({
       success: true,
-      message: "OTP sent successfully",
+      message: "OTP sent successfully."
     });
 
-  } catch (error) {
-    console.error(error);
-
+  } catch (err) {
+    console.error(err);
     return res.status(500).json({
       success: false,
-      message: "Failed to send OTP",
+      message: "Failed to send OTP."
     });
   }
 };
-
-export const verifyOTPController = async (req, res) => {
+export const verifySignupOTP = async (req, res) => {
   try {
-    const { phone, otp, purpose } = req.body;
+    const { phone, otp } = req.body;
 
-    const record = await OTP.findOne({
+    const otpDoc = await OTP.findOne({
       phone,
-      otp,
-      purpose,
+      purpose: "signup",
     });
 
-    if (!record) {
-      return res.status(400).json({
+    if (!otpDoc) {
+      return res.json({
         success: false,
-        message: "Invalid OTP",
+        message: "OTP expired or not found."
       });
     }
 
-    if (record.expiresAt < new Date()) {
-      await OTP.deleteOne({ _id: record._id });
-
-      return res.status(400).json({
+    if (otpDoc.otp !== otp) {
+      return res.json({
         success: false,
-        message: "OTP has expired",
+        message: "Invalid OTP."
       });
     }
 
-    await OTP.deleteOne({ _id: record._id });
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const hashedVerificationToken = crypto
+      .createHash("sha256")
+      .update(verificationToken)
+      .digest("hex");
+
+    const user = await userModel.create({
+      ...otpDoc.userData,
+      isEmailVerified: false,
+      isPhoneVerified: true,
+      emailVerificationToken: hashedVerificationToken,
+      verificationTokenExpiry: Date.now() + 24 * 60 * 60 * 1000,
+    });
+
+    const verificationUrl =
+      `${process.env.WEBSITE_URL}/verify-email/${verificationToken}`;
+
+    await emailService.sendEmailVerification(
+      user.email,
+      user.name,
+      verificationUrl
+    );
+
+    await OTP.deleteOne({ _id: otpDoc._id });
 
     return res.json({
       success: true,
-      message: "OTP verified successfully",
+      message:
+        "Phone verified successfully. Please verify your email."
     });
 
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
 
     return res.status(500).json({
       success: false,
-      message: "Verification failed",
+      message: "Verification failed."
     });
   }
 };
