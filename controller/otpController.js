@@ -5,6 +5,9 @@ import userModel from "../models/userModel.js";
 import crypto from "crypto";
 import emailService from "../services/emailService.js";
 import bcrypt from "bcryptjs";
+import generateOTP from "../utils/generateOTP.js";
+
+const otp = generateOTP();
 
 export const sendSignupOTP = async (req, res) => {
   try {
