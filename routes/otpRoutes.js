@@ -3,7 +3,7 @@ import {
   sendSignupOTP,
   verifySignupOTP
 } from "../controller/otpController.js";
-import { sendOTP } from "../services/otpService.js";
+import sendOTP from "../services/otpService.js";
 
 const router = express.Router();
 
