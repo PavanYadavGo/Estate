@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export async function sendOTP(phone, otp) {
+export default async function sendOTP(phone, otp) {
   try {
     const response = await axios.get(
       "https://www.fast2sms.com/dev/bulkV2",
