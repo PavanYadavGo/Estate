@@ -1,10 +1,9 @@
 import express from "express";
 import {
-  sendOTPController,
-  verifyOTPController
+  sendSignupOTP,
+  verifySignupOTP
 } from "../controller/otpController.js";
-import sendOTP from "../services/otpService.js";
-
+import { sendOTP } from "../services/otpService.js";
 
 const router = express.Router();
 
