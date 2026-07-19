@@ -2,7 +2,7 @@ import express from "express";
 import {
   sendOTPController,
   verifyOTPController
-} from "../controllers/otpController.js";
+} from "../controller/otpController.js";
 import { sendOTP } from "../services/otpService.js";
 
 
