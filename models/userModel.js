@@ -4,12 +4,13 @@ import bcrypt from 'bcryptjs';
 const UserSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
+    phone: {type: String,unique: true,sparse: true,trim: true},
     password: { type: String, required: true },
     resetToken: { type: String },
     resetTokenExpire: { type: Date },
-
     // Email verification fields
     isEmailVerified: { type: Boolean, default: false },
+    phoneVerified: {type: Boolean,default: false},
     emailVerificationToken: { type: String },
     verificationTokenExpiry: { type: Date },
 
